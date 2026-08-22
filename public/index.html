@@ -3,61 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ভিডিও সার্চ ইঞ্জিন</title>
+    <title>ভিডিও প্লেয়ার ও মিনি অ্যাপ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- [এখানে পরবর্তীতে আপনার Adsterra বা অ্যাড নেটওয়ার্কের জাভাস্ক্রিপ্ট কোড বসাবেন] -->
 </head>
-<body class="bg-slate-900 text-white min-p-4">
-    <div class="max-w-md mx-auto p-4">
-        <h1 class="text-xl font-bold text-center mb-4 text-pink-500">🌟 রিয়েল-টাইম সার্চ ইঞ্জিন</h1>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center shadow-2xl">
+        <h2 class="text-xl font-bold text-pink-500 mb-2">🎬 ভিডিও প্লেয়ার</h2>
+        <p id="videoTitle" class="text-sm text-slate-300 mb-4">ভিডিও লোড হচ্ছে...</p>
         
-        <!-- সার্চ বক্স -->
-        <div class="flex gap-2 mb-6">
-            <input type="text" id="searchInput" placeholder="কীওয়ার্ড বা ক্যাটাগরি লিখুন..." class="flex-1 p-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-pink-500">
-            <button onclick="searchVideos()" class="bg-pink-600 px-5 py-3 rounded-lg font-bold hover:bg-pink-500 transition">সার্চ</button>
+        <!-- ভিডিও দেখার মেইন বাটন -->
+        <div id="videoContainer" class="mb-6">
+            <a id="watchBtn" href="#" target="_blank" class="inline-block bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl transition w-full">
+                সরাসরি ভিডিও দেখুন
+            </a>
         </div>
-
-        <!-- রেজাল্ট দেখানোর জায়গা -->
-        <div id="results" class="space-y-4">
-            <p class="text-center text-slate-400">অনুগ্রহ করে সার্চ করুন...</p>
-        </div>
+        
+        <p class="text-xs text-slate-500">মিনি অ্যাপ ব্রাউজ করার জন্য ধন্যবাদ।</p>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        async function searchVideos() {
-            const query = document.getElementById('searchInput').value.trim();
-            const resultsDiv = document.getElementById('results');
-            if(!query) return;
-
-            resultsDiv.innerHTML = '<p class="text-center text-pink-400">খোঁজা হচ্ছে...</p>';
-            
-            try {
-                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-
-                if(data.length > 0) {
-                    resultsDiv.innerHTML = '';
-                    data.forEach(v => {
-                        resultsDiv.innerHTML += `
-                            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex gap-3 items-center">
-                                <img src="${v.image || 'https://via.placeholder.com/100'}" class="w-24 h-16 object-cover rounded-lg">
-                                <div class="flex-1 overflow-hidden">
-                                    <h3 class="font-semibold text-sm truncate">${v.title}</h3>
-                                    <p class="text-xs text-slate-400 mt-1">সময়: ${v.duration || 'N/A'}</p>
-                                    <a href="${v.url}" target="_blank" class="inline-block mt-2 text-xs bg-pink-600 px-3 py-1 rounded text-white font-bold">ভিডিও দেখুন</a>
-                                </div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    resultsDiv.innerHTML = '<p class="text-center text-red-400">কোনো ভিডিও পাওয়া যায়নি।</p>';
-                }
-            } catch(e) {
-                resultsDiv.innerHTML = '<p class="text-center text-red-400">সমস্যা হয়েছে, আবার চেষ্টা করুন।</p>';
-            }
+        // টেলিগ্রাম থেকে পাঠানো ভিডিওর লিংক রিড করা
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUrl = urlParams.get('v');
+        
+        if (targetUrl) {
+            document.getElementById('watchBtn').href = targetUrl;
+            document.getElementById('videoTitle').innerText = "আপনার কাঙ্ক্ষিত ভিডিওটি দেখতে নিচের বাটনে ক্লিক করুন:";
+        } else {
+            document.getElementById('videoTitle').innerText = "কোনো ভিডিও সিলেক্ট করা হয়নি।";
+            document.getElementById('watchBtn').style.display = 'none';
         }
     </script>
 </body>
