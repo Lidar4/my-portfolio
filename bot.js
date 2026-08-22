@@ -4,7 +4,8 @@ const cheerio = require('cheerio');
 const express = require('express');
 const path = require('path');
 
-const bot = new Telegraf('8819132197:AAFBGRk-8bRSb2-Dof4nMhDPV9xAQ1Ua_uQ');
+const BOT_TOKEN = '8819132197:AAFBGRk-8bRSb2-Dof4nMhDPV9xAQ1Ua_uQ';
+const bot = new Telegraf(BOT_TOKEN);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const RENDER_URL = process.env.RENDER_EXTERNAL_URL || 'https://xvideos-bot-pszi.onrender.com';
@@ -15,8 +16,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// সবার আগে এক্সপ্রেস সার্ভার পোর্ট লিসেন করবে (Render-এর নিয়মানুযায়ী জরুরি)
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Express server is running on port ${PORT}`);
 });
 
 bot.start((ctx) => {
@@ -85,5 +87,8 @@ bot.on('text', async (ctx) => {
     }
 });
 
-bot.launch();
-console.log('Bot is running!');
+bot.launch().then(() => {
+    console.log('Telegram bot launched successfully!');
+}).catch(err => {
+    console.error('Bot launch error:', err);
+});
