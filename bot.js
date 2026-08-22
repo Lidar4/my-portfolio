@@ -10,21 +10,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const RENDER_URL = process.env.RENDER_EXTERNAL_URL || 'https://xvideos-bot-pszi.onrender.com';
 
+// Express Setup
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// সবার আগে এক্সপ্রেস সার্ভার পোর্ট লিসেন করবে (Render-এর নিয়মানুযায়ী জরুরি)
+// Bind port immediately for cloud hosting stability
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Express server is running on port ${PORT}`);
+    console.log(`Server is running smoothly on port ${PORT}`);
 });
 
+// Bot Start Command
 bot.start((ctx) => {
-    ctx.reply('🌟 রিয়েল-টাইম সার্চ ইঞ্জিন সক্রিয় আছে। যেকোনো কিওয়ার্ড লিখে সার্চ করুন।');
+    ctx.reply('👋 স্বাগতম! যেকোনো ভিডিওর কিওয়ার্ড লিখে সার্চ করুন, আমি দ্রুত ফলাফল খুঁজে দিচ্ছি।');
 });
 
+// Search & Scraping Handler
 bot.on('text', async (ctx) => {
     const query = ctx.message.text.trim();
     if (!query || query.startsWith('/')) return;
@@ -34,7 +36,8 @@ bot.on('text', async (ctx) => {
     try {
         const searchUrl = `https://www.xvideos.com/?k=${encodeURIComponent(query)}`;
         const { data } = await axios.get(searchUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            timeout: 10000
         });
 
         const $ = cheerio.load(data);
@@ -58,13 +61,13 @@ bot.on('text', async (ctx) => {
         try { await ctx.telegram.deleteMessage(ctx.chat.id, searchMsg.message_id); } catch (e) {}
 
         if (videos.length > 0) {
-            await ctx.reply(`📂 *"${query}" এর ফলাফল:*`, { parse_mode: 'Markdown' });
+            await ctx.reply(`📂 *"${query}" এর সেরা ফলাফলসমূহ:*`, { parse_mode: 'Markdown' });
             for (const v of videos) {
                 const caption = `📌 *${v.title}*\n⏱ সময়: ${v.duration || 'N/A'}`;
                 const webAppUrl = `${RENDER_URL}/?v=${encodeURIComponent(v.url)}`;
                 const replyMarkup = {
                     inline_keyboard: [
-                        [{ text: '▶️ ভিডিও দেখুন (মিনি অ্যাপ)', web_app: { url: webAppUrl } }]
+                        [{ text: '🚀 মিনি অ্যাপে ভিডিও দেখুন', web_app: { url: webAppUrl } }]
                     ]
                 };
 
@@ -79,16 +82,21 @@ bot.on('text', async (ctx) => {
                 }
             }
         } else {
-            await ctx.reply(`❌ কোনো ভিডিও পাওয়া যায়নি।`);
+            await ctx.reply(`❌ দুঃখিত, কোনো ভিডিও পাওয়া যায়নি। অন্য কিছু দিয়ে চেষ্টা করুন।`);
         }
     } catch (error) {
-        console.error('Error:', error);
-        await ctx.reply('⚠️ সমস্যা হয়েছে।');
+        console.error('Scraping Error:', error.message);
+        try { await ctx.telegram.deleteMessage(ctx.chat.id, searchMsg.message_id); } catch (e) {}
+        await ctx.reply('⚠️ সার্ভারে সাময়িক সমস্যা হয়েছে। আবার চেষ্টা করুন।');
     }
 });
 
 bot.launch().then(() => {
-    console.log('Telegram bot launched successfully!');
+    console.log('Telegram bot is active and running!');
 }).catch(err => {
-    console.error('Bot launch error:', err);
+    console.error('Bot launch failed:', err);
 });
+
+// Graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
