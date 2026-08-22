@@ -1,9 +1,19 @@
-const { Telegraf, Markup } = require('telegraf');
+const { Telegraf } = require('telegraf');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const http = require('http');
 
 const bot = new Telegraf('8819132197:AAFBGRk-8bRSb2-Dof4nMhDPV9xAQ1Ua_uQ');
 let adminId = null;
+
+// রেন্ডার বা ক্লাউড সার্ভারের জন্য একটি ডামি পোর্ট সার্ভার (যাতে বট ২৪ ঘণ্টা লাইভ থাকে)
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot is running 24/7!\n');
+}).listen(PORT, () => {
+    console.log(`🌍 Web server is listening on port ${PORT}`);
+});
 
 console.log('🌐 Direct Web Scraping Search Engine is starting...');
 
@@ -21,7 +31,7 @@ bot.use((ctx, next) => {
 bot.start((ctx) => {
     ctx.reply(
         '🌟 *রিয়েল-টাইম ডাইনামিক সার্চ ইঞ্জিন সক্রিয় আছে।*\n\n' +
-        'যেকোনো ক্যাটাগরি বা কিওয়ার্ড (যেমন: HD, Bangla, Amateur ইত্যাদি) লিখে সার্চ করুন। এটি প্রতিবার একদম নতুন ও ভিন্ন ভিন্ন ভিডিওর তালিকা ও থাম্বনেইল নিয়ে আসবে।',
+        'যেকোনো ক্যাটাগরি বা কিওয়ার্ড লিখে সার্চ করুন। এটি একদম নতুন ও ভিন্ন ভিন্ন ভিডিওর তালিকা ও থাম্বনেইল নিয়ে আসবে।',
         { parse_mode: 'Markdown' }
     );
 });
@@ -33,7 +43,6 @@ bot.on('text', async (ctx) => {
     const searchMsg = await ctx.reply(`🔍 "${query}" এর রিয়েল-টাইম রেজাল্ট খোঁজা হচ্ছে...`);
 
     try {
-        // সরাসরি ওয়েবসাইট থেকে পেজ ফেচ করা যাতে ক্যাশ বা রিপিট প্রবলেম না থাকে
         const searchUrl = `https://www.xvideos.com/?k=${encodeURIComponent(query)}`;
         const { data } = await axios.get(searchUrl, {
             headers: {
@@ -44,20 +53,17 @@ bot.on('text', async (ctx) => {
         const $ = cheerio.load(data);
         const videos = [];
 
-        // পেজ থেকে ভিডিওর টাইটেল, থাম্বনেইল, লিংক এবং ডিউরেশন আলাদা করা
         $('.mozaique .thumb-block').each((i, element) => {
-            if (videos.length >= 5) return; // সর্বোচ্চ ৫টি ভিন্ন ভিডিও নেব
+            if (videos.length >= 5) return;
 
             const titleElem = $(element).find('.title a');
             const title = titleElem.attr('title') || titleElem.text().trim();
             let relativeUrl = titleElem.attr('href');
             const url = relativeUrl ? `https://www.xvideos.com${relativeUrl}` : null;
             
-            // থাম্বনেইল ইমেজ সংগ্রহ
             const imgElem = $(element).find('img');
             const image = imgElem.attr('data-src') || imgElem.attr('src');
             
-            // ডিউরেশন সংগ্রহ
             const duration = $(element).find('.duration').text().trim();
 
             if (title && url) {
@@ -85,7 +91,7 @@ bot.on('text', async (ctx) => {
             await ctx.reply(`❌ "${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি।`);
         }
 
-    } catch (error) {
+    }     catch (error) {
         console.error('Scraping Error:', error);
         await ctx.reply('⚠️ সার্চ করার সময় একটি সমস্যা হয়েছে।');
     }

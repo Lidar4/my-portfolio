@@ -1,21 +1,14 @@
 {
   "name": "xv-bot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Telegram Search Engine Bot",
+  "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bot.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@google/genai": "^2.18.0",
-    "@rodrigogs/xvideos": "^3.2.2",
-    "axios": "^1.19.0",
-    "cheerio": "^1.2.0",
-    "node-telegram-bot-api": "^2.0.0",
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
     "telegraf": "^4.16.3"
   }
 }
