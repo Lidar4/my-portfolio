@@ -7,38 +7,27 @@ const path = require('path');
 const bot = new Telegraf('8819132197:AAFBGRk-8bRSb2-Dof4nMhDPV9xAQ1Ua_uQ');
 const app = express();
 const PORT = process.env.PORT || 3000;
-let adminId = null;
-
-// আপনার স্ক্রিনশটের সঠিক রেন্ডার লিংক এখানে বসিয়ে দেওয়া হলো
-const RENDER_URL = 'https://xvideos-bot-1.onrender.com';
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL || 'https://xvideos-bot-pszi.onrender.com';
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(PORT, () => {
-    console.log(`🌍 Server running on port ${PORT}`);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-bot.use((ctx, next) => {
-    const userId = ctx.from?.id;
-    if (!adminId) adminId = userId;
-    if (userId !== adminId) {
-        return ctx.reply('⛔ এক্সেস সুরক্ষিত।');
-    }
-    return next();
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
 bot.start((ctx) => {
-    ctx.reply(
-        '🌟 *রিয়েল-টাইম সার্চ ইঞ্জিন সক্রিয় আছে।*\n\nযেকোনো ক্যাটাগরি বা কিওয়ার্ড লিখে সার্চ করুন।',
-        { parse_mode: 'Markdown' }
-    );
+    ctx.reply('🌟 রিয়েল-টাইম সার্চ ইঞ্জিন সক্রিয় আছে। যেকোনো কিওয়ার্ড লিখে সার্চ করুন।');
 });
 
 bot.on('text', async (ctx) => {
     const query = ctx.message.text.trim();
     if (!query || query.startsWith('/')) return;
 
-    const searchMsg = await ctx.reply(`🔍 "${query}" এর রিয়েল-টাইম রেজাল্ট খোঁজা হচ্ছে...`);
+    const searchMsg = await ctx.reply(`🔍 "${query}" খোঁজা হচ্ছে...`);
 
     try {
         const searchUrl = `https://www.xvideos.com/?k=${encodeURIComponent(query)}`;
@@ -67,12 +56,10 @@ bot.on('text', async (ctx) => {
         try { await ctx.telegram.deleteMessage(ctx.chat.id, searchMsg.message_id); } catch (e) {}
 
         if (videos.length > 0) {
-            await ctx.reply(`📂 *"${query}" এর জন্য ফলাফল:*`);
+            await ctx.reply(`📂 *"${query}" এর ফলাফল:*`, { parse_mode: 'Markdown' });
             for (const v of videos) {
                 const caption = `📌 *${v.title}*\n⏱ সময়: ${v.duration || 'N/A'}`;
-                
                 const webAppUrl = `${RENDER_URL}/?v=${encodeURIComponent(v.url)}`;
-                
                 const replyMarkup = {
                     inline_keyboard: [
                         [{ text: '▶️ ভিডিও দেখুন (মিনি অ্যাপ)', web_app: { url: webAppUrl } }]
@@ -90,14 +77,13 @@ bot.on('text', async (ctx) => {
                 }
             }
         } else {
-            await ctx.reply(`❌ "${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি।`);
+            await ctx.reply(`❌ কোনো ভিডিও পাওয়া যায়নি।`);
         }
-
     } catch (error) {
-        console.error('Scraping Error:', error);
-        await ctx.reply('⚠️ সার্চ করার সময় একটি সমস্যা হয়েছে।');
+        console.error('Error:', error);
+        await ctx.reply('⚠️ সমস্যা হয়েছে।');
     }
 });
 
 bot.launch();
-console.log('🚀 Bot is running with correct Render URL!');
+console.log('Bot is running!');

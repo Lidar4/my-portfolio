@@ -3,37 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ভিডিও প্লেয়ার ও মিনি অ্যাপ</title>
+    <title>ভিডিও প্লেয়ার</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- [এখানে পরবর্তীতে আপনার Adsterra বা অ্যাড নেটওয়ার্কের জাভাস্ক্রিপ্ট কোড বসাবেন] -->
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center shadow-2xl">
         <h2 class="text-xl font-bold text-pink-500 mb-2">🎬 ভিডিও প্লেয়ার</h2>
         <p id="videoTitle" class="text-sm text-slate-300 mb-4">ভিডিও লোড হচ্ছে...</p>
-        
-        <!-- ভিডিও দেখার মেইন বাটন -->
         <div id="videoContainer" class="mb-6">
             <a id="watchBtn" href="#" target="_blank" class="inline-block bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl transition w-full">
                 সরাসরি ভিডিও দেখুন
             </a>
         </div>
-        
-        <p class="text-xs text-slate-500">মিনি অ্যাপ ব্রাউজ করার জন্য ধন্যবাদ।</p>
     </div>
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        // টেলিগ্রাম থেকে পাঠানো ভিডিওর লিংক রিড করা
         const urlParams = new URLSearchParams(window.location.search);
         const targetUrl = urlParams.get('v');
-        
         if (targetUrl) {
             document.getElementById('watchBtn').href = targetUrl;
-            document.getElementById('videoTitle').innerText = "আপনার কাঙ্ক্ষিত ভিডিওটি দেখতে নিচের বাটনে ক্লিক করুন:";
+            document.getElementById('videoTitle').innerText = "ভিডিও দেখতে নিচের বাটনে ক্লিক করুন:";
         } else {
             document.getElementById('videoTitle').innerText = "কোনো ভিডিও সিলেক্ট করা হয়নি।";
             document.getElementById('watchBtn').style.display = 'none';
