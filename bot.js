@@ -9,20 +9,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 let adminId = null;
 
-const RENDER_URL = process.env.RENDER_EXTERNAL_URL || 'https://xvideos-bot.onrender.com';
+// আপনার স্ক্রিনশটের সঠিক রেন্ডার লিংক এখানে বসিয়ে দেওয়া হলো
+const RENDER_URL = 'https://xvideos-bot-1.onrender.com';
 
-// স্ট্যাটিক ফোল্ডার চালু করা
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(PORT, () => {
-    console.log(`🌍 Mini App Server running on port ${PORT}`);
+    console.log(`🌍 Server running on port ${PORT}`);
 });
 
 bot.use((ctx, next) => {
     const userId = ctx.from?.id;
     if (!adminId) adminId = userId;
     if (userId !== adminId) {
-        return ctx.reply('⛔ এই সার্চ ইঞ্জিনের এক্সেস সুরক্ষিত।');
+        return ctx.reply('⛔ এক্সেস সুরক্ষিত।');
     }
     return next();
 });
@@ -34,7 +34,6 @@ bot.start((ctx) => {
     );
 });
 
-// ইউজার টেক্সট দিয়ে সার্চ করলে ভিডিও লিস্ট ও মিনি অ্যাপ বাটন পাঠানো
 bot.on('text', async (ctx) => {
     const query = ctx.message.text.trim();
     if (!query || query.startsWith('/')) return;
@@ -72,7 +71,6 @@ bot.on('text', async (ctx) => {
             for (const v of videos) {
                 const caption = `📌 *${v.title}*\n⏱ সময়: ${v.duration || 'N/A'}`;
                 
-                // লিঙ্কে ক্লিক করলে মিনি অ্যাপ ওপেন হওয়ার লিংক
                 const webAppUrl = `${RENDER_URL}/?v=${encodeURIComponent(v.url)}`;
                 
                 const replyMarkup = {
@@ -102,4 +100,4 @@ bot.on('text', async (ctx) => {
 });
 
 bot.launch();
-console.log('🚀 Bot with Mini App is running!');
+console.log('🚀 Bot is running with correct Render URL!');
