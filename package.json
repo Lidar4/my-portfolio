@@ -1,14 +1,18 @@
 {
-  "name": "xv-bot",
+  "name": "xvideos-bot",
   "version": "1.0.0",
-  "description": "Telegram Search Engine Bot",
+  "description": "Telegram Bot with Mini App",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
-    "axios": "^1.6.8",
+    "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
-    "telegraf": "^4.16.3"
+    "express": "^4.18.2",
+    "telegraf": "^4.12.2"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
